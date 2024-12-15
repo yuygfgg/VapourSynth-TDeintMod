@@ -1,5 +1,5 @@
 project('TDeintMod', 'cpp',
-  default_options : ['buildtype=release', 'b_ndebug=if-release', 'cpp_std=c++14'],
+  default_options : ['buildtype=release', 'b_ndebug=if-release', 'cpp_std=c++17', 'b_lto=true'],
   meson_version : '>=0.48.0',
   version : '10'
 )
@@ -10,7 +10,8 @@ sources = [
   'TDeintMod/TDeintMod.cpp',
   'TDeintMod/TDeintMod.hpp',
   'TDeintMod/vectorclass/instrset.h',
-  'TDeintMod/vectorclass/instrset_detect.cpp'
+  'TDeintMod/vectorclass/instrset_detect.cpp',
+  'TDeintMod/TDeintMod_SSE2.cpp'
 ]
 
 vapoursynth_dep = dependency('vapoursynth').partial_dependency(compile_args : true, includes : true)
