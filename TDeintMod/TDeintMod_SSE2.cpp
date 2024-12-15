@@ -1,4 +1,4 @@
-#ifdef VS_TARGET_CPU_X86
+#if defined(VS_TARGET_CPU_X86) || defined(__ARM_NEON__)
 #include "TDeintMod.hpp"
 
 template<typename T>

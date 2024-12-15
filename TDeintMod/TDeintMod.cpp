@@ -61,6 +61,13 @@ template<typename T1, typename T2, int step> extern void combineMasks_sse2(const
 template<typename T1, typename T2, int step> extern void combineMasks_avx2(const VSFrameRef *, VSFrameRef *, const int, const TDeintModData *, const VSAPI *) noexcept;
 #endif
 
+#if defined(__ARM_NEON__)
+template<typename T1, typename T2, int step> extern void threshMask_sse2(const VSFrameRef *, VSFrameRef *, const int, const TDeintModData *, const VSAPI *) noexcept;
+template<typename T1, typename T2, int step> extern void motionMask_sse2(const VSFrameRef *, const VSFrameRef *, const VSFrameRef *, const VSFrameRef *, VSFrameRef *, const int, const TDeintModData *, const VSAPI *) noexcept;
+template<typename T1, typename T2, int step> extern void andMasks_sse2(const VSFrameRef *, const VSFrameRef *, VSFrameRef *, const int, const TDeintModData *, const VSAPI *) noexcept;
+template<typename T1, typename T2, int step> extern void combineMasks_sse2(const VSFrameRef *, VSFrameRef *, const int, const TDeintModData *, const VSAPI *) noexcept;
+#endif
+
 template<typename T>
 static void copyPad(const VSFrameRef * src, VSFrameRef * dst, const int plane, const int widthPad, const VSAPI * vsapi) noexcept {
     const int width = vsapi->getFrameWidth(src, plane);
@@ -885,7 +892,7 @@ static void binaryMask(const VSFrameRef * src, VSFrameRef * dst, const TDeintMod
 }
 
 static void selectFunctions(const unsigned opt, TDeintModData * d) noexcept {
-#ifdef VS_TARGET_CPU_X86
+#if defined(VS_TARGET_CPU_X86) || defined(__ARM_NEON__)
     const int iset = instrset_detect();
 #endif
 
@@ -904,13 +911,20 @@ static void selectFunctions(const unsigned opt, TDeintModData * d) noexcept {
         d->cubicDeint = cubicDeint<uint8_t>;
         d->binaryMask = binaryMask<uint8_t>;
 
-#ifdef VS_TARGET_CPU_X86
+#if defined(VS_TARGET_CPU_X86)
         if ((opt == 0 && iset >= 8) || opt == 3) {
             d->threshMask = threshMask_avx2<uint8_t, Vec32uc, 32>;
             d->motionMask = motionMask_avx2<uint8_t, Vec32uc, 32>;
             d->andMasks = andMasks_avx2<uint8_t, Vec32uc, 32>;
             d->combineMasks = combineMasks_avx2<uint8_t, Vec32uc, 32>;
         } else if ((opt == 0 && iset >= 2) || opt == 2) {
+            d->threshMask = threshMask_sse2<uint8_t, Vec16uc, 16>;
+            d->motionMask = motionMask_sse2<uint8_t, Vec16uc, 16>;
+            d->andMasks = andMasks_sse2<uint8_t, Vec16uc, 16>;
+            d->combineMasks = combineMasks_sse2<uint8_t, Vec16uc, 16>;
+        }
+#elif defined(__ARM_NEON__)
+        if ((opt == 0 && iset >= 2) || opt == 2) {
             d->threshMask = threshMask_sse2<uint8_t, Vec16uc, 16>;
             d->motionMask = motionMask_sse2<uint8_t, Vec16uc, 16>;
             d->andMasks = andMasks_sse2<uint8_t, Vec16uc, 16>;
@@ -939,6 +953,13 @@ static void selectFunctions(const unsigned opt, TDeintModData * d) noexcept {
             d->andMasks = andMasks_avx2<uint16_t, Vec16us, 16>;
             d->combineMasks = combineMasks_avx2<uint16_t, Vec16us, 16>;
         } else if ((opt == 0 && iset >= 2) || opt == 2) {
+            d->threshMask = threshMask_sse2<uint16_t, Vec8us, 8>;
+            d->motionMask = motionMask_sse2<uint16_t, Vec8us, 8>;
+            d->andMasks = andMasks_sse2<uint16_t, Vec8us, 8>;
+            d->combineMasks = combineMasks_sse2<uint16_t, Vec8us, 8>;
+        }
+#elif defined(__ARM_NEON__)
+        if ((opt == 0 && iset >= 2) || opt == 2) {
             d->threshMask = threshMask_sse2<uint16_t, Vec8us, 8>;
             d->motionMask = motionMask_sse2<uint16_t, Vec8us, 8>;
             d->andMasks = andMasks_sse2<uint16_t, Vec8us, 8>;

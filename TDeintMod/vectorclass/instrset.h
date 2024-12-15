@@ -28,29 +28,7 @@
 // Find instruction set from compiler macros if INSTRSET not defined
 // Note: Most of these macros are not defined in Microsoft compilers
 #ifndef INSTRSET
-#if defined ( __AVX512F__ ) || defined ( __AVX512__ )
-#define INSTRSET 9
-#elif defined ( __AVX2__ )
-#define INSTRSET 8
-#elif defined ( __AVX__ )
-#define INSTRSET 7
-#elif defined ( __SSE4_2__ )
 #define INSTRSET 6
-#elif defined ( __SSE4_1__ )
-#define INSTRSET 5
-#elif defined ( __SSSE3__ )
-#define INSTRSET 4
-#elif defined ( __SSE3__ )
-#define INSTRSET 3
-#elif defined ( __SSE2__ ) || defined ( __x86_64__ )
-#define INSTRSET 2
-#elif defined ( __SSE__ )
-#define INSTRSET 1
-#elif defined ( _M_IX86_FP )           // Defined in MS compiler. 1: SSE, 2: SSE2
-#define INSTRSET _M_IX86_FP
-#else 
-#define INSTRSET 0
-#endif // instruction set defines
 #endif // INSTRSET
 
 // Include the appropriate header file for intrinsic functions
@@ -65,7 +43,7 @@
 #elif INSTRSET == 7
 #include <immintrin.h>                 // AVX
 #elif INSTRSET == 6
-#include <nmmintrin.h>                 // SSE4.2
+#include "sse2neon.h"                 // SSE4.2
 #elif INSTRSET == 5
 #include <smmintrin.h>                 // SSE4.1
 #elif INSTRSET == 4
@@ -160,10 +138,10 @@
 namespace VCL_NAMESPACE {
 #endif
     int  instrset_detect(void);                      // tells which instruction sets are supported
-    bool hasFMA3(void);                              // true if FMA3 instructions supported
-    bool hasFMA4(void);                              // true if FMA4 instructions supported
-    bool hasXOP(void);                               // true if XOP  instructions supported
-    bool hasAVX512ER(void);                          // true if AVX512ER instructions supported
+    // bool hasFMA3(void);                              // true if FMA3 instructions supported
+    // bool hasFMA4(void);                              // true if FMA4 instructions supported
+    // bool hasXOP(void);                               // true if XOP  instructions supported
+    // bool hasAVX512ER(void);                          // true if AVX512ER instructions supported
 #ifdef VCL_NAMESPACE
 }
 #endif
